@@ -7,6 +7,7 @@ mod math;
 // レイ関連のモジュール
 mod ray;
 
+mod camera;
 
 pub mod prelude
 {
@@ -17,4 +18,5 @@ mod internal_prelude
 {
     pub use crate::util::*;
     pub use crate::math::*;
+    pub use crate::ray::*;
 }
