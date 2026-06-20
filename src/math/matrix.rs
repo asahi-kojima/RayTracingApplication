@@ -354,21 +354,6 @@ mod tests
 {
     use super::*;
 
-    fn assert_approx_eq(lhs: f64, rhs: f64)
-    {
-        let epsilon = 1.0e-10;
-        assert!((lhs - rhs).abs() < epsilon, "left: {lhs}, right: {rhs}");
-    }
-
-    fn assert_vec3_approx_eq<T : Into<Vec3>, U : Into<Vec3>> (lhs: T, rhs: U)
-    {
-        let lhs_vec: Vec3 = lhs.into();
-        let rhs_vec: Vec3 = rhs.into();
-        assert_approx_eq(lhs_vec.x(), rhs_vec.x());
-        assert_approx_eq(lhs_vec.y(), rhs_vec.y());
-        assert_approx_eq(lhs_vec.z(), rhs_vec.z());
-    }
-
     fn is_same_quaternion(q1: Quaternion, q2: Quaternion) -> bool
     {
         let epsilon = 1.0e-10;
@@ -387,7 +372,7 @@ mod tests
     fn test_identity_matrix_keeps_point_unchanged()
     {
         let point: Point = Point::new(1.0, 2.0, 3.0);
-        assert_vec3_approx_eq(Mat4::identity() * point, point);
+        assert_approx_iter_eq_default(Mat4::identity() * point, point);
     }
 
     // 単位行列をDirectionに掛けてもDirectionが変わらないことを確認するテスト
@@ -395,7 +380,7 @@ mod tests
     fn test_identity_matrix_keeps_direction_unchanged()
     {
         let direction: Direction = Direction::new(0.0, 1.0, 0.0);
-        assert_vec3_approx_eq(Mat4::identity() * direction, direction);
+        assert_approx_iter_eq_default(Mat4::identity() * direction, direction.into());
     }
 
     // クオータニオンが回転行列に変換され、更にクオータニオンに変換されたとき、元のクオータニオンと同じ回転を表すことを確認するテスト
@@ -468,7 +453,7 @@ mod tests
                 let s = s as f64;
                 let quaternion = Quaternion::try_from_axis_angle(axis * s, angle * s).unwrap();
                 let rotated_point = Mat4::from(quaternion) * original_point;
-                assert_vec3_approx_eq(rotated_point, expected_point);
+                assert_approx_iter_eq_default(rotated_point, expected_point);
             }
         }
     }
@@ -494,7 +479,7 @@ mod tests
         {
             let quaternion = Quaternion::try_from_axis_angle(axis, angle).unwrap();
             let rotated_point = Mat4::from(quaternion) * original_point;
-            assert_vec3_approx_eq(rotated_point, expected_point);
+            assert_approx_iter_eq_default(rotated_point, expected_point);
         }
     }
 
