@@ -14,9 +14,9 @@ pub struct Vec3
 
 impl Vec3
 {
-    pub fn new(x : f64, y : f64, z : f64)->Vec3
+    pub fn new(x : f64, y : f64, z : f64)->Self
     {
-        Vec3{x, y, z}
+        Self{x, y, z}
     }
 
     pub fn to_tuple(&self) -> (f64, f64, f64)
@@ -28,12 +28,12 @@ impl Vec3
     pub fn y(&self) -> f64 { self.y }
     pub fn z(&self) -> f64 { self.z }
 
-    pub fn zero()->Vec3 { Vec3{x : 0.0, y : 0.0, z : 0.0} }
-    pub fn one() -> Vec3 { Vec3{x : 1.0, y : 1.0, z : 1.0} }
+    pub fn zero()->Self { Self{x : 0.0, y : 0.0, z : 0.0} }
+    pub fn one() -> Self { Self{x : 1.0, y : 1.0, z : 1.0} }
 
-    pub fn unit_x() -> Vec3 { Vec3{x : 1.0, y : 0.0, z : 0.0} }
-    pub fn unit_y() -> Vec3 { Vec3{x : 0.0, y : 1.0, z : 0.0} }
-    pub fn unit_z() -> Vec3 { Vec3{x : 0.0, y : 0.0, z : 1.0} }
+    pub fn unit_x() -> Self { Self{x : 1.0, y : 0.0, z : 0.0} }
+    pub fn unit_y() -> Self { Self{x : 0.0, y : 1.0, z : 0.0} }
+    pub fn unit_z() -> Self { Self{x : 0.0, y : 0.0, z : 1.0} }
 
     pub fn length_squared(self) -> f64 {self.x * self.x + self.y * self.y + self.z * self.z}
     pub fn length(self) -> f64 {f64::sqrt(self.length_squared())}
@@ -49,7 +49,7 @@ impl Vec3
         let y = y * inv_norm;
         let z = z * inv_norm;
         
-        Direction(Vec3{x, y, z})
+        Direction(Self{x, y, z})
     }
 
     pub fn try_normalize(self) -> Result<Direction, MathError>
@@ -63,10 +63,10 @@ impl Vec3
         let y = y * inv_norm;
         let z = z * inv_norm;
         
-        Ok(Direction(Vec3{x, y, z}))
+        Ok(Direction(Self{x, y, z}))
     }
 
-    pub fn random_in_unit_disk() -> Vec3
+    pub fn random_in_unit_disk() -> Self
     {
     //    use rand::Rng;
     //     let mut rng = rand::rng();
@@ -79,7 +79,7 @@ impl Vec3
     
     //Vec3::new(x, y, 0.0)
     // TODO
-        Vec3::zero()
+        Self::zero()
     }
 }
 
@@ -149,15 +149,19 @@ pub struct Point(Vec3);
 
 impl Point
 {
-    pub fn new(x : f64, y : f64, z : f64)->Point
+    pub fn new(x : f64, y : f64, z : f64)->Self
     {
-        Point(Vec3::new(x, y, z))
+        Self(Vec3::new(x, y, z))
     }
 
-    pub fn lerp(self, other: Point, t: f64) -> Point
+    pub fn lerp(self, other: Point, t: f64) -> Self
     {
         self + t * (other - self)
     }
+
+    pub fn unit_x() -> Self { Self(Vec3::unit_x()) }
+    pub fn unit_y() -> Self { Self(Vec3::unit_y()) }
+    pub fn unit_z() -> Self { Self(Vec3::unit_z()) }
 }
 
 impl Deref for Point
@@ -173,7 +177,7 @@ impl From<Vec3> for Point
 {
     fn from(v: Vec3) -> Self
     {
-        Point(v)
+        Self(v)
     }
 }
 
@@ -208,23 +212,23 @@ pub struct Direction(Vec3);// 必ず規格化されていることを保証す�
 
 impl Direction
 {
-    pub(crate) fn new(x : f64, y : f64, z : f64)->Direction
+    pub(crate) fn new(x : f64, y : f64, z : f64)->Self
     {
         let v = Vec3::new(x, y, z);
         let normalized = v.normalize();
         normalized
     }
 
-    pub fn try_new(x : f64, y : f64, z : f64) -> Result<Direction, MathError>
+    pub fn try_new(x : f64, y : f64, z : f64) -> Result<Self, MathError>
     {
         let v = Vec3{x, y, z};
         let normalized = v.try_normalize()?;
         Ok(normalized)
     }
 
-    pub fn unit_x() -> Direction{Direction(Vec3::unit_x())}
-    pub fn unit_y() -> Direction{Direction(Vec3::unit_y())}
-    pub fn unit_z() -> Direction{Direction(Vec3::unit_z())}
+    pub fn unit_x() -> Self{Self(Vec3::unit_x())}
+    pub fn unit_y() -> Self{Self(Vec3::unit_y())}
+    pub fn unit_z() -> Self{Self(Vec3::unit_z())}
 }
 
 impl TryFrom<Vec3> for Direction
