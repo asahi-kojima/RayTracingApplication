@@ -165,7 +165,7 @@ pub struct Direction(Vec3);// 必ず規格化されていることを保証す�
 
 impl Direction
 {
-    pub fn new(x : f64, y : f64, z : f64)->Direction
+    pub(crate) fn new(x : f64, y : f64, z : f64)->Direction
     {
         let v = Vec3::new(x, y, z);
         let normalized = v.normalize();
