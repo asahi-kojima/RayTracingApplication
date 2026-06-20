@@ -321,7 +321,33 @@ impl Index<usize> for Mat4
     }
 }
 
+impl IntoIterator for Mat4
+{
+    type Item = f64;
+    type IntoIter = std::array::IntoIter<f64, 16>;
 
+    fn into_iter(self) -> Self::IntoIter
+    {
+        [
+            self.elements[0][0], self.elements[0][1], self.elements[0][2], self.elements[0][3],
+            self.elements[1][0], self.elements[1][1], self.elements[1][2], self.elements[1][3],
+            self.elements[2][0], self.elements[2][1], self.elements[2][2], self.elements[2][3],
+            self.elements[3][0], self.elements[3][1], self.elements[3][2], self.elements[3][3],
+        ].into_iter()
+    }
+}
+
+impl IntoIterator for &Mat4
+{
+    type Item = f64;
+    type IntoIter = std::array::IntoIter<f64, 16>;
+
+    fn into_iter(self) -> Self::IntoIter
+    {
+        let mat4_copy = *self;
+        mat4_copy.into_iter()
+    }
+}
 
 #[cfg(test)]
 mod tests

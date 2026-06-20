@@ -121,6 +121,27 @@ impl Index<usize> for Vec3
     }
 }
 
+impl IntoIterator for Vec3
+{
+    type Item = f64;
+    type IntoIter = std::array::IntoIter<f64, 3>;
+
+    fn into_iter(self) -> Self::IntoIter
+    {
+        [self.x, self.y, self.z].into_iter()
+    }
+}
+
+impl IntoIterator for &Vec3
+{
+    type Item = f64;
+    type IntoIter = std::array::IntoIter<f64, 3>;
+
+    fn into_iter(self) -> Self::IntoIter
+    {
+        [self.x, self.y, self.z].into_iter()
+    }
+}
 
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -153,6 +174,28 @@ impl From<Vec3> for Point
     fn from(v: Vec3) -> Self
     {
         Point(v)
+    }
+}
+
+impl IntoIterator for Point
+{
+    type Item = f64;
+    type IntoIter = <Vec3 as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter
+    {
+        self.0.into_iter()
+    }
+}
+
+impl IntoIterator for &Point
+{
+    type Item = f64;
+    type IntoIter = <Vec3 as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter
+    {
+        self.0.into_iter()
     }
 }
 
@@ -201,6 +244,29 @@ impl Deref for Direction
         &self.0
     }
 }
+
+impl IntoIterator for Direction
+{
+    type Item = f64;
+    type IntoIter = <Vec3 as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter
+    {
+        self.0.into_iter()
+    }
+}
+
+impl IntoIterator for &Direction
+{
+    type Item = f64;
+    type IntoIter = <Vec3 as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter
+    {
+        self.0.into_iter()
+    }
+}
+
 
 // =======================================================
 // Mathematical Operations
