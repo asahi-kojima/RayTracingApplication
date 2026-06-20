@@ -4,6 +4,9 @@ mod util;
 // 数学関連のモジュール
 mod math;
 
+// レイ関連のモジュール
+mod ray;
+
 
 pub mod prelude
 {
