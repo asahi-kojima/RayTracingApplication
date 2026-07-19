@@ -9,14 +9,28 @@ mod ray;
 
 mod camera;
 
+pub mod render;
+
+pub mod platform;
+
+pub mod app;
+
+mod input;
+
+
+
 pub mod prelude
 {
+    pub use crate::app::*;
+    pub use crate::camera::*;
     pub use crate::math::*;
+    pub use crate::platform::*;
+    pub use crate::render::*;
 }
 
 mod internal_prelude
 {
-    pub use crate::util::*;
-    pub use crate::math::*;
-    pub use crate::ray::*;
+    pub(crate) use crate::math::*;
+    pub(crate) use crate::ray::*;
+    pub(crate) use crate::util::*;
 }
