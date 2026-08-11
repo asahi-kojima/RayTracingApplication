@@ -9,7 +9,7 @@ mod ray;
 
 mod camera;
 
-pub mod object;
+pub mod scene;
 
 pub mod render;
 
@@ -26,7 +26,7 @@ pub mod prelude
     pub use crate::app::*;
     pub use crate::camera::*;
     pub use crate::math::*;
-    pub use crate::object::*;
+    pub use crate::scene::*;
     pub use crate::platform::*;
     pub use crate::render::*;
 }

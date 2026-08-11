@@ -25,5 +25,14 @@ fn main()
     .unwrap();
 
     let mut app = App::new(renderer, presenter, camera, 30);
+
+    let mat_id = app.add_material("asahi", Material::Diffuse {
+        albedo: Vec3::new(0.8, 0.2, 0.1),
+    });
+
+    app.add_object(Object::new(
+        "Red Sphere",
+        PrimitiveId(0),
+        mat_id));
     app.run().unwrap();
 }

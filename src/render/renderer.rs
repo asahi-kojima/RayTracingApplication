@@ -1,4 +1,5 @@
 use crate::camera::Camera;
+use crate::scene::RuntimeScene;
 use crate::render::Frame;
 
 
@@ -16,6 +17,7 @@ pub trait Renderer
         &mut self,
         frame: &mut Frame,
         camera: &Camera,
+        runtime_scene: &RuntimeScene,
         ctx: &RenderContext,
     ) -> Result<(), String>;
 }

@@ -1,4 +1,5 @@
 use crate::camera::Camera;
+use crate::scene::RuntimeScene;
 use crate::render::{Frame, RenderContext, Renderer};
 
 pub struct GpuRenderer;
@@ -25,6 +26,7 @@ impl Renderer for GpuRenderer
         &mut self,
         _frame: &mut Frame,
         _camera: &Camera,
+        _runtime_scene: &RuntimeScene,
         _ctx: &RenderContext,
     ) -> Result<(), String>
     {

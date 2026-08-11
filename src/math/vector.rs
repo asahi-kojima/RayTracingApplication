@@ -1,3 +1,5 @@
+use rand::RngExt;
+
 use crate::util::{try_reciprocal, MathError};
 use std::{ops::{Add, AddAssign, Sub, SubAssign, Div, Mul, Neg, Deref, Index}};
 
@@ -64,6 +66,17 @@ impl Vec3
         let z = z * inv_norm;
         
         Ok(Direction(Self{x, y, z}))
+    }
+
+    pub fn random_in_cube() -> Self
+    {
+        let mut rng = rand::rng();
+
+        let x = rng.random_range(-1.0..1.0);
+        let y = rng.random_range(-1.0..1.0);
+        let z = rng.random_range(-1.0..1.0);
+
+        Self{x, y, z}
     }
 
     pub fn random_in_unit_disk() -> Self
@@ -162,6 +175,11 @@ impl Point
     pub fn unit_x() -> Self { Self(Vec3::unit_x()) }
     pub fn unit_y() -> Self { Self(Vec3::unit_y()) }
     pub fn unit_z() -> Self { Self(Vec3::unit_z()) }
+
+    pub fn random_in_cube(size: f64) -> Self
+    {
+        Self(Vec3::random_in_cube() * size)
+    }
 }
 
 impl Deref for Point

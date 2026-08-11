@@ -14,12 +14,42 @@ fn map_keycode(keycode: Keycode) -> Key
 {
     match keycode 
     {
-        Keycode::W => Key::W,
         Keycode::A => Key::A,
-        Keycode::S => Key::S,
+        Keycode::B => Key::B,
+        Keycode::C => Key::C,
         Keycode::D => Key::D,
-        Keycode::Q => Key::Q,
+        Keycode::E => Key::E,
+        Keycode::F => Key::F,
+        Keycode::G => Key::G,
+        Keycode::H => Key::H,
+        Keycode::I => Key::I,
+        Keycode::J => Key::J,
+        Keycode::K => Key::K,
+        Keycode::L => Key::L,
+        Keycode::M => Key::M,
+        Keycode::N => Key::N,
+        Keycode::O => Key::O,
         Keycode::P => Key::P,
+        Keycode::Q => Key::Q,
+        Keycode::R => Key::R,
+        Keycode::S => Key::S,
+        Keycode::T => Key::T,
+        Keycode::U => Key::U,
+        Keycode::V => Key::V,
+        Keycode::W => Key::W,
+        Keycode::X => Key::X,
+        Keycode::Y => Key::Y,
+        Keycode::Z => Key::Z,
+        Keycode::Num0 => Key::NUM0,
+        Keycode::Num1 => Key::NUM1,
+        Keycode::Num2 => Key::NUM2,
+        Keycode::Num3 => Key::NUM3,
+        Keycode::Num4 => Key::NUM4,
+        Keycode::Num5 => Key::NUM5,
+        Keycode::Num6 => Key::NUM6,
+        Keycode::Num7 => Key::NUM7,
+        Keycode::Num8 => Key::NUM8,
+        Keycode::Num9 => Key::NUM9,
         Keycode::Left => Key::LEFT,
         Keycode::Right => Key::RIGHT,
         Keycode::Up => Key::UP,
@@ -59,6 +89,7 @@ impl SdlPresenter
     {
         let sdl = sdl2::init()?;
         let video_subsystem = sdl.video()?;
+        video_subsystem.text_input().stop();
 
         let window = video_subsystem
             .window(title, width, height)
