@@ -66,11 +66,39 @@ impl Scene
         Ok(primitive_id)
     }
 
+    // ルートオブジェクトとして追加するメソッド
     pub fn add_object(&mut self, object: Object) -> ObjectId
     {
         let object_id = ObjectId(self.objects.len());
         self.objects.push(object);
         object_id
+    }
+
+    // 親オブジェクトの下に子オブジェクトを追加するメソッド
+    pub fn add_child_object(&mut self, parent_id: ObjectId, mut child: Object) -> Result<ObjectId, &'static str>
+    {
+        if parent_id.0 >= self.objects().len()
+        {
+            return Err("Invalid Parent ObjectID");
+        }
+
+        // 子にParentIdを設定する
+        child.parent = Some(parent_id);
+
+        // 子IDを取得し、シーンのオブジェクトに登録する
+        let child_id = ObjectId(self.objects.iter().len());
+        self.objects.push(child);
+
+        // 親に子IDを登録する
+        if let Some(object) = self.get_object_mut(parent_id)
+        {
+            object.children.push(child_id);
+            Ok(child_id)
+        }
+        else
+        {
+            return Err("failed to get parent object");
+        }
     }
 
 
@@ -88,4 +116,15 @@ impl Scene
         super::runtime_scene::SceneCompiler::compile(self)
     }
 
+    // ObjectId を指定して Object の参照を取得
+    pub fn get_object(&self, id: ObjectId) -> Option<&Object> 
+    {
+        self.objects.get(id.0)
+    }
+
+    // ObjectId を指定して Object の可変参照を取得
+    pub fn get_object_mut(&mut self, id: ObjectId) -> Option<&mut Object> 
+    {
+        self.objects.get_mut(id.0)
+    }
 }

@@ -13,6 +13,9 @@ pub struct Object
     primitive_id: PrimitiveId,
     material_id: MaterialId,
     transform: Transform,
+
+    pub(super) parent: Option<ObjectId>,
+    pub(super) children: Vec<ObjectId>
 }
 
 impl Object
@@ -24,6 +27,9 @@ impl Object
             primitive_id,
             material_id,
             transform: Transform::identity(),
+
+            parent: None,
+            children: Vec::new()
         }
     }
 
