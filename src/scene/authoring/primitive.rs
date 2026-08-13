@@ -68,9 +68,7 @@ impl Vertex
         Self{point, normal}
     }
 
-    pub fn point(&self) -> Point {self.point}
-
-    pub fn norma(&self) -> Direction {self.normal}
+    pub(crate) fn point(&self) -> Point {self.point}
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -82,11 +80,6 @@ pub struct Mesh
 
 impl Mesh
 {
-    pub(crate) fn new(vertices: Vec<Vertex>, indices: Vec<[u32; 3]>) -> Self
-    {
-        Self { vertices, indices }
-    }
-
     pub fn try_new(vertices: Vec<Vertex>, indices: Vec<[u32; 3]>) -> Result<Self, MathError>
     {
         // 各三角形の法線ベクトルを計算して、面積が0の三角形がないかチェックする
@@ -129,14 +122,6 @@ pub struct Triangle
 
 impl Triangle
 {
-    pub(crate) fn new(v0: Point, v1: Point, v2: Point) -> Self
-    {
-        let edge1 = v1 - v0;
-        let edge2 = v2 - v0;
-        let normal = edge1.cross(edge2).normalize();
-        Self { v0, v1, v2, normal }
-    }
-
     pub fn try_new(v0: Point, v1: Point, v2: Point) -> Result<Self, MathError>
     {
         let edge1 = v1 - v0;
