@@ -15,7 +15,9 @@ pub struct Object
     transform: Transform,
 
     pub(super) parent: Option<ObjectId>,
-    pub(super) children: Vec<ObjectId>
+    pub(super) children: Vec<ObjectId>,
+
+    is_visible: bool
 }
 
 impl Object
@@ -29,7 +31,9 @@ impl Object
             transform: Transform::identity(),
 
             parent: None,
-            children: Vec::new()
+            children: Vec::new(),
+
+            is_visible: true,
         }
     }
 

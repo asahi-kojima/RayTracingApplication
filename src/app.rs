@@ -1,13 +1,13 @@
-use crate::input::Key::M;
-use crate::internal_prelude::*;
 use std::any::Any;
 use std::time::{Duration, Instant};
 
+use crate::internal_prelude::*;
 use crate::camera::{Camera, CameraSnapshot};
 use crate::input::{InputEvent, Key};
-use crate::scene::{RuntimeScene, Scene};
+use crate::scene::{ObjectId, RuntimeScene, Scene};
 use crate::platform::Presenter;
 use crate::render::{Frame, RenderContext, Renderer};
+use crate::scene::Vertex;
 
 const MOVE_SPEED: f64 = 0.1;
 const ROT_SPEED_RAD: f64 = 3.0_f64.to_radians();
@@ -220,7 +220,7 @@ impl App
         primitive_id
     }
 
-    pub fn add_mesh_with_topology(&mut self, name: &str, vertices: Vec<Point>, indices: Vec<[u32; 3]>) -> Result<crate::scene::PrimitiveId, String>
+    pub fn add_mesh_with_topology(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<[u32; 3]>) -> Result<crate::scene::PrimitiveId, String>
     {
         let primitive_id = self.scene.add_mesh_with_topology(name, vertices, indices).map_err(|e| format!("Failed to add mesh with topology: {:?}", e))?;
         self.scene_dirty = true;
@@ -233,6 +233,11 @@ impl App
         println!("Added object with ID: {:?}", object_id);
         self.scene_dirty = true;
         object_id
+    }
+
+    pub fn set_transform(&mut self, object_id: ObjectId, transform: Transform)
+    {
+        self.scene.set_transform(object_id, transform);
     }
 
 
