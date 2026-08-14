@@ -5,12 +5,6 @@ fn main()
     const WIDTH: u32 = 800;
     const HEIGHT: u32 = 600;
 
-    let backend = std::env::var("RAY_BACKEND").unwrap_or_else(|_| "cpu".to_string());
-    let renderer: Box<dyn Renderer> = match backend.as_str()
-    {
-        "gpu" => Box::new(GpuRenderer::new()),
-        _ => Box::new(CpuRenderer::new()),
-    };
 
     let presenter: Box<dyn Presenter> =
         Box::new(SdlPresenter::try_new("Ray Tracing in Rust", WIDTH, HEIGHT).unwrap());
@@ -24,7 +18,7 @@ fn main()
     )
     .unwrap();
 
-    let mut app = App::new(renderer, presenter, camera, 30);
+    let mut app = App::new(presenter, camera, 30);
 
     let mat_id = app.add_material("asahi", Material::Diffuse {
         albedo: Vec3::new(0.8, 0.2, 0.1),

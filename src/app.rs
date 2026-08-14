@@ -1,4 +1,3 @@
-use crate::input::Key::M;
 use crate::internal_prelude::*;
 use std::any::Any;
 use std::time::{Duration, Instant};
@@ -7,7 +6,7 @@ use crate::camera::{Camera, CameraSnapshot};
 use crate::input::{InputEvent, Key};
 use crate::scene::{RuntimeScene, Scene};
 use crate::platform::Presenter;
-use crate::render::{Frame, RenderContext, Renderer};
+use crate::render::{Frame, RenderContext, Renderer, CpuRenderer, GpuRenderer};
 
 const MOVE_SPEED: f64 = 0.1;
 const ROT_SPEED_RAD: f64 = 3.0_f64.to_radians();
@@ -28,12 +27,19 @@ pub struct App
 impl App
 {
     pub fn new(
-        renderer: Box<dyn Renderer>,
         presenter: Box<dyn Presenter>,
         camera: Camera,
         fps: u32,
     ) -> Self
     {
+        let backend = std::env::var("RAY_BACKEND").unwrap_or_else(|_| "cpu".to_string());
+        let renderer: Box<dyn Renderer> = match backend.as_str()
+        {
+            "gpu" => Box::new(GpuRenderer::new()),
+            _ => Box::new(CpuRenderer::new()),
+        };
+
+
         let (width, height) = presenter.size();
         let render_target = Frame::new(width, height);
         let scene = Scene::new();

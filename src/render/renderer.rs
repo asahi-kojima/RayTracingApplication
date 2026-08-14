@@ -11,7 +11,7 @@ pub struct RenderContext
     pub elapsed_seconds: f32,
 }
 
-pub trait Renderer
+pub(crate) trait Renderer
 {
     fn render(
         &mut self,
