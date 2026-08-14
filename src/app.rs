@@ -206,7 +206,7 @@ impl App
                         println!("TextInput: {}", text);
                         //TODO
                     },
-                    _ => println!("Unhandled event: {:?}", event.type_id()),
+                    _ => println!("--- Unhandled event --- : {:?}", event.type_id()),
                 }
             }
 
@@ -214,7 +214,7 @@ impl App
             // カメラの移動
             // ----------------------------------------------------------------
             {
-                let effective_move_speed = MOVE_SPEED * delta_time.as_secs_f64();println!("{}", effective_move_speed);
+                let effective_move_speed = MOVE_SPEED * delta_time.as_secs_f64();
                 let effective_rot_speed_rad = ROT_SPEED_RAD * delta_time.as_secs_f64();
 
                 if input_state.is_w_pressed { self.camera.move_forward(effective_move_speed); }
