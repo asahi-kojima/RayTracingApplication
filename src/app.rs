@@ -335,6 +335,13 @@ impl App
         object_id
     }
 
+    pub fn add_child_object(&mut self, parent_id: ObjectId, mut child: crate::scene::Object) -> ObjectId
+    {
+        let child_object_id = self.scene.add_child_object(parent_id, child);
+        self.scene_dirty = true;
+        child_object_id
+    }
+
     pub fn set_transform(&mut self, object_id: ObjectId, transform: Transform)
     {
         self.scene.set_transform(object_id, transform);

@@ -65,6 +65,15 @@ fn main()
         transform = transform.with_position(Point::new(-3.0, 10.0, 0.0));
 
         app.set_transform(object_id, transform);
+
+        {
+            let child_id = app.add_child_object(object_id, Object::new(
+            "Blue child",
+            cube_primitive_id,
+            metal_material_id));
+
+
+        }
     }
 
     app.run().unwrap();
