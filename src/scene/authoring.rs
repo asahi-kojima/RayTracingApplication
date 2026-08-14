@@ -180,11 +180,16 @@ impl Scene
         // 依存関係（エッジ）の定義
         for (i, obj) in self.objects.iter().enumerate()
         {
+            for child_id in &obj.children
+            {
+                graph.push_str(&format!("    obj{} --> obj{}\n", i, child_id.0));
+            }
+
             let prim_id = obj.primitive().0;
             let mat_id = obj.material_id().0;
 
-            graph.push_str(&format!("    obj{} --> prim{}\n", i, prim_id));
-            graph.push_str(&format!("    obj{} --> mat{}\n", i, mat_id));
+            graph.push_str(&format!("    obj{} -.-> prim{}\n", i, prim_id));
+            graph.push_str(&format!("    obj{} -.-> mat{}\n", i, mat_id));
         }
 
         graph
