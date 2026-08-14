@@ -6,7 +6,7 @@ use crate::camera::{Camera, CameraSnapshot};
 use crate::input::{InputEvent, Key};
 use crate::scene::{ObjectId, RuntimeScene, Scene, SceneCompiler};
 use crate::platform::Presenter;
-use crate::render::{Frame, RenderContext, Renderer};
+use crate::render::{Frame, RenderContext, Renderer, CpuRenderer, GpuRenderer};
 use crate::scene::Vertex;
 
 const MOVE_SPEED: f64 = 1.0;
