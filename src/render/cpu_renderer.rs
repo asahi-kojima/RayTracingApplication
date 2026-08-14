@@ -1,6 +1,6 @@
 use crate::camera::Camera;
 use crate::math::{Direction, Point, Transform, Vec3};
-use crate::scene::{Material, RuntimeMeshRef, RuntimePrimitive, RuntimeScene};
+use crate::scene::{Material, RuntimeMeshRef, RuntimePrimitive, RuntimeScene, Vertex};
 use crate::render::{Frame, RenderContext, Renderer};
 use crate::util::UnitInterval;
 
@@ -119,7 +119,7 @@ fn mesh_hit_instance(
     ray_dir: Direction,
     transform: &Transform,
     mesh_ref: &RuntimeMeshRef,
-    primitive_vertices: &[Point],
+    primitive_vertices: &[Vertex],
     t_min: f64,
     t_max: f64,
 ) -> Option<(f64, Direction)>
@@ -133,9 +133,9 @@ fn mesh_hit_instance(
     let vstart = mesh_ref.vertex_range.start as usize;
     for &[i0, i1, i2] in &mesh_ref.indices
     {
-        let v0 = primitive_vertices[vstart + i0 as usize];
-        let v1 = primitive_vertices[vstart + i1 as usize];
-        let v2 = primitive_vertices[vstart + i2 as usize];
+        let v0 = primitive_vertices[vstart + i0 as usize].point();
+        let v1 = primitive_vertices[vstart + i1 as usize].point();
+        let v2 = primitive_vertices[vstart + i2 as usize].point();
         if let Some(t) = triangle_hit_local(local_origin, local_dir, v0, v1, v2, t_min, best_t)
         {
             best_t = t;

@@ -1,6 +1,6 @@
 use crate::internal_prelude::*;
 use std::collections::HashMap;
-use super::authoring::{Material, MaterialId, PrimitiveId, ObjectId, Scene};
+use super::authoring::{Material, MaterialId, PrimitiveId, ObjectId, Scene, Vertex};
 
 
 
@@ -127,7 +127,7 @@ pub(crate) struct RuntimeScene
 {
 	materials: Vec<Material>,
 	primitives: Vec<RuntimePrimitive>,
-	primitive_vertices: Vec<Point>,
+	primitive_vertices: Vec<Vertex>,
 	instances: Vec<RuntimeInstance>,
 
 	authoring_to_runtime_primitive: HashMap<PrimitiveId, RuntimePrimitiveId>,
@@ -139,7 +139,7 @@ impl RuntimeScene
 	pub fn new(
 		materials: Vec<Material>,
 		primitives: Vec<RuntimePrimitive>,
-		primitive_vertices: Vec<Point>,
+		primitive_vertices: Vec<Vertex>,
 		instances: Vec<RuntimeInstance>,
 		authoring_to_runtime_primitive: HashMap<PrimitiveId, RuntimePrimitiveId>,
 		authoring_to_runtime_object: HashMap<ObjectId, RuntimeInstanceId>,
@@ -165,7 +165,7 @@ impl RuntimeScene
 		&self.primitives
 	}
 
-	pub fn primitive_vertices(&self) -> &[Point]
+	pub fn primitive_vertices(&self) -> &[Vertex]
 	{
 		&self.primitive_vertices
 	}
@@ -188,7 +188,7 @@ impl RuntimeScene
 	pub fn update_mesh_vertices(
 		&mut self,
 		primitive_id: PrimitiveId,
-		new_vertices: &[Point],
+		new_vertices: &[Vertex],
 	) -> Result<(), MeshUpdateError>
 	{
 		let runtime_id = self.authoring_to_runtime_primitive
@@ -287,10 +287,10 @@ pub enum SceneCompileError
 }
 
 use super::authoring::Primitive;
-pub struct SceneCompiler;
+pub(crate) struct SceneCompiler;
 impl SceneCompiler
 {
-    pub fn compile(scene: &Scene) -> Result<RuntimeScene, SceneCompileError>
+    pub(crate) fn compile(scene: &Scene) -> Result<RuntimeScene, SceneCompileError>
     {
         let materials = scene
             .material_assets()
@@ -302,7 +302,7 @@ impl SceneCompiler
 		// シーン内のプリミティブをコンパイルして、RuntimePrimitive と RuntimeMeshRef を作成する
 		// -----------------------------------------------------------------------------------
         let mut runtime_primitives = Vec::<RuntimePrimitive>::new();
-        let mut primitive_vertices = Vec::<Point>::new();
+        let mut primitive_vertices = Vec::<Vertex>::new();
         let mut primitive_map = HashMap::<PrimitiveId, RuntimePrimitiveId>::new();
 
         for primitive_asset in scene.primitive_assets().iter()

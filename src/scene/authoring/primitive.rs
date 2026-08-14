@@ -4,7 +4,7 @@ use crate::internal_prelude::*;
 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct PrimitiveId(pub usize);
+pub struct PrimitiveId(pub(crate) usize);
 
 
 
@@ -54,41 +54,52 @@ pub enum Primitive
 }
 
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Vertex
+{
+    point: Point,
+    normal: Direction
+}
+
+impl Vertex
+{
+    pub fn new(point: Point, normal: Direction) -> Self
+    {
+        Self{point, normal}
+    }
+
+    pub(crate) fn point(&self) -> Point {self.point}
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Mesh
 {
-    vertices: Vec<Point>,
+    vertices: Vec<Vertex>,
     indices: Vec<[u32; 3]>,
 }
 
 impl Mesh
 {
-    pub(crate) fn new(vertices: Vec<Point>, indices: Vec<[u32; 3]>) -> Self
-    {
-        Self { vertices, indices }
-    }
-
-    pub fn try_new(vertices: Vec<Point>, indices: Vec<[u32; 3]>) -> Result<Self, MathError>
+    pub fn try_new(vertices: Vec<Vertex>, indices: Vec<[u32; 3]>) -> Result<Self, MathError>
     {
         // 各三角形の法線ベクトルを計算して、面積が0の三角形がないかチェックする
         for [i0, i1, i2] in &indices
         {
             let _triangle = Triangle::try_new(
-                vertices[*i0 as usize],
-                vertices[*i1 as usize],
-                vertices[*i2 as usize],
+                vertices[*i0 as usize].point,
+                vertices[*i1 as usize].point,
+                vertices[*i2 as usize].point,
             )?;
         }
         Ok(Self { vertices, indices })
     }
 
-    pub fn vertices(&self) -> &[Point]
+    pub fn vertices(&self) -> &[Vertex]
     {
         &self.vertices
     }
 
-    pub fn vertices_mut(&mut self) -> &mut Vec<Point>
+    pub fn vertices_mut(&mut self) -> &mut Vec<Vertex>
     {
         &mut self.vertices
     }
@@ -111,14 +122,6 @@ pub struct Triangle
 
 impl Triangle
 {
-    pub(crate) fn new(v0: Point, v1: Point, v2: Point) -> Self
-    {
-        let edge1 = v1 - v0;
-        let edge2 = v2 - v0;
-        let normal = edge1.cross(edge2).normalize();
-        Self { v0, v1, v2, normal }
-    }
-
     pub fn try_new(v0: Point, v1: Point, v2: Point) -> Result<Self, MathError>
     {
         let edge1 = v1 - v0;
