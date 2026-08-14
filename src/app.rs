@@ -142,6 +142,14 @@ impl App
                                 self.save_scene_data(filename.to_str().ok_or("Invalid filename")?)?;
                             },
 
+                            // オブジェクト、プリミティブ、マテリアルの依存関係を出力
+                            Key::O =>
+                            {
+                                println!("Save scene dependency");
+
+                                println!("{}", self.scene.make_mermaid_graph_of_instance_dependency());
+                            },
+
                             Key::ESCAPE => return Ok(()),
 
                             Key::H => 
