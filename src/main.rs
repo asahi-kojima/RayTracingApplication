@@ -16,7 +16,7 @@ fn main()
         Box::new(SdlPresenter::try_new("Ray Tracing in Rust", WIDTH, HEIGHT).unwrap());
 
     let camera = Camera::try_new(
-        Point::new(0.0, 0.0, 0.0),
+        Point::new(0.0, 0.0, 10.0),
         Point::new(0.0, 0.0, -1.0),
         Direction::try_new(0.0, 1.0, 0.0).unwrap(),
         90.0,
@@ -48,16 +48,30 @@ fn main()
         sphere_primitive_id,
         diffuse_material_id));
 
-    let object_id = app.add_object(Object::new(
-        "Blue tetra",
-        tetrahedron_id,
-        diffuse_material_id));
+    {
+        let object_id = app.add_object(Object::new(
+            "Blue tetra",
+            tetrahedron_id,
+            metal_material_id));
 
 
-    let mut transform = Transform::identity();
-    transform = transform.with_position(Point::new(3.0, 0.0, 0.0));
+        let mut transform = Transform::identity();
+        transform = transform.with_position(Point::new(3.0, 0.0, 0.0));
 
-    app.set_transform(object_id, transform);
+        app.set_transform(object_id, transform);
+    }
+    {
+        let object_id = app.add_object(Object::new(
+            "Blue cube",
+            cube_primitive_id,
+            metal_material_id));
+
+
+        let mut transform = Transform::identity();
+        transform = transform.with_position(Point::new(-3.0, 10.0, 0.0));
+
+        app.set_transform(object_id, transform);
+    }
 
     app.run().unwrap();
 }

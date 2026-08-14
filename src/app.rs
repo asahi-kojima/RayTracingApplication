@@ -4,7 +4,7 @@ use std::time::{Duration, Instant};
 use crate::internal_prelude::*;
 use crate::camera::{Camera, CameraSnapshot};
 use crate::input::{InputEvent, Key};
-use crate::scene::{ObjectId, RuntimeScene, Scene};
+use crate::scene::{ObjectId, RuntimeScene, Scene, SceneCompiler};
 use crate::platform::Presenter;
 use crate::render::{Frame, RenderContext, Renderer};
 use crate::scene::Vertex;
@@ -52,9 +52,7 @@ impl App
         let (width, height) = presenter.size();
         let render_target = Frame::new(width, height);
         let scene = Scene::new();
-        let runtime_scene = scene
-            .compile_to_runtime_scene()
-            .expect("empty scene compile should always succeed");
+        let runtime_scene = SceneCompiler::compile(&scene).expect("empty scene compile should always succeed");
 
         Self {
             renderer,
@@ -236,9 +234,7 @@ impl App
             // ----------------------------------------------------------------
             if self.scene_dirty
             {
-                self.runtime_scene = self
-                    .scene
-                    .compile_to_runtime_scene()
+                self.runtime_scene = SceneCompiler::compile(&self.scene)
                     .map_err(|e| format!("Scene compile failed: {:?}", e))?;
                 self.scene_dirty = false;
             }

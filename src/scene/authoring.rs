@@ -3,11 +3,12 @@ use crate::internal_prelude::*;
 mod material;
 mod object;
 mod primitive;
+mod geometry_generator;
 
 pub use material::*;
 pub use object::*;
 pub use primitive::*;
-
+pub use geometry_generator::*;
 
 
 
@@ -142,14 +143,6 @@ impl Scene
     {
         self.check_object_id_validation(object_id);
 
-    }
-
-
-    // -------------------------------------------------------
-    // -------------------------------------------------------
-    pub(crate) fn compile_to_runtime_scene(&self) -> Result<super::RuntimeScene, super::runtime_scene::SceneCompileError>
-    {
-        super::runtime_scene::SceneCompiler::compile(self)
     }
 
     // -------------------------------------------------------

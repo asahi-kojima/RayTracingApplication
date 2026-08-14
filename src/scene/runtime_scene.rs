@@ -287,10 +287,10 @@ pub enum SceneCompileError
 }
 
 use super::authoring::Primitive;
-pub struct SceneCompiler;
+pub(crate) struct SceneCompiler;
 impl SceneCompiler
 {
-    pub fn compile(scene: &Scene) -> Result<RuntimeScene, SceneCompileError>
+    pub(crate) fn compile(scene: &Scene) -> Result<RuntimeScene, SceneCompileError>
     {
         let materials = scene
             .material_assets()
