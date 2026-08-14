@@ -139,10 +139,11 @@ impl Scene
 
     // -------------------------------------------------------
     // -------------------------------------------------------
-    pub(crate) fn change_visibility(&self, object_id: ObjectId, is_visible: bool)
+    pub(crate) fn change_visibility(&mut self, object_id: ObjectId, is_visible: bool)
     {
         self.check_object_id_validation(object_id);
-
+        let mut object = self.get_object_mut(object_id);
+        object.is_visible = is_visible;
     }
 
     // -------------------------------------------------------

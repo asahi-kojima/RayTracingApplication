@@ -1,6 +1,5 @@
 use crate::internal_prelude::*;
-use super::primitive::*;
-use super::material::*;
+use super::{PrimitiveId, MaterialId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ObjectId(pub(crate) usize);
@@ -17,7 +16,7 @@ pub struct Object
     pub(super) parent: Option<ObjectId>,
     pub(super) children: Vec<ObjectId>,
 
-    is_visible: bool
+    pub(super) is_visible: bool
 }
 
 impl Object
@@ -52,10 +51,19 @@ impl Object
         self.material_id
     }
 
-
     pub fn transform(&self) -> &Transform
     {
         &self.transform
+    }
+
+    pub fn parent(&self) -> &Option<ObjectId>
+    {
+        &self.parent
+    }
+
+    pub fn children(&self) -> &[ObjectId]
+    {
+        &self.children
     }
 
     pub fn set_transform(&mut self, transform: Transform)

@@ -332,6 +332,11 @@ impl App
         self.scene.set_transform(object_id, transform);
     }
 
+    pub fn change_visibility(&mut self, object_id: ObjectId, is_visible: bool)
+    {
+        self.scene.change_visibility(object_id, is_visible);
+    }
+
 
 
     fn save_scene_data(&self, filename: &str) -> Result<(), String>
