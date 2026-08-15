@@ -147,7 +147,14 @@ impl App
                             {
                                 println!("Save scene dependency");
 
-                                println!("{}", self.scene.make_mermaid_graph_of_instance_dependency());
+                                let parent = std::path::Path::new("storage");
+                                let filename = parent.join("dependency.md");
+
+                                std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+
+                                let dependency_graph: String = self.scene.make_mermaid_graph_of_instance_dependency();
+                                let output = "```mermaid\n".to_string() + &dependency_graph + "```\n";
+                                std::fs::write(filename, output).map_err(|e| e.to_string())?;
                             },
 
                             Key::ESCAPE => return Ok(()),
