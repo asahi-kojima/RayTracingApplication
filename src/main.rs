@@ -69,8 +69,8 @@ fn main()
         {
             let child_id = app.add_child_object(object_id, Object::new(
             "Blue child",
-            cube_primitive_id,
-            metal_material_id));
+            sphere_primitive_id,
+            diffuse_material_id));
 
 
         }
