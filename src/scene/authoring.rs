@@ -146,6 +146,56 @@ impl Scene
         object.is_visible = is_visible;
     }
 
+    pub(crate) fn make_mermaid_graph_of_instance_dependency(&self) -> String
+    {
+        let mut graph = String::from("graph TD\n");
+
+        graph.push_str("    classDef objClass fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000;\n");
+        graph.push_str("    classDef primClass fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#000;\n");
+        graph.push_str("    classDef matClass fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;\n\n");
+
+        // Objectノードの定義
+        for (i, obj) in self.objects.iter().enumerate()
+        {
+            graph.push_str(&format!("    obj{}[(\"Object: {}\")]:::objClass\n", i, obj.name()));
+        }
+
+        graph.push_str("\n");
+
+        // PrimitiveAssetノードの定義
+        for prim in &self.primitive_assets
+        {
+            graph.push_str(&format!("    prim{}[\"Primitive: {}\"]:::primClass\n", prim.id().0, prim.name()));
+        }
+
+        graph.push_str("\n");
+
+        // MaterialAssetノードの定義
+        for (i, mat) in self.material_assets.iter().enumerate()
+        {
+            graph.push_str(&format!("    mat{}([\"Material: {}\"]):::matClass\n", i, mat.name()));
+        }
+
+        graph.push_str("\n");
+
+        // 依存関係（エッジ）の定義
+        for (i, obj) in self.objects.iter().enumerate()
+        {
+            for child_id in &obj.children
+            {
+                graph.push_str(&format!("    obj{} --> obj{}\n", i, child_id.0));
+            }
+
+            let prim_id = obj.primitive().0;
+            let mat_id = obj.material_id().0;
+
+            graph.push_str(&format!("    obj{} -.-> prim{}\n", i, prim_id));
+            graph.push_str(&format!("    obj{} -.-> mat{}\n", i, mat_id));
+        }
+
+        graph
+    }
+
     // -------------------------------------------------------
     // 指定されたObjectIdの有効性チェック
     // -------------------------------------------------------

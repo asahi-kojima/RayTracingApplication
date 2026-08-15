@@ -142,6 +142,21 @@ impl App
                                 self.save_scene_data(filename.to_str().ok_or("Invalid filename")?)?;
                             },
 
+                            // オブジェクト、プリミティブ、マテリアルの依存関係を出力
+                            Key::O =>
+                            {
+                                println!("Save scene dependency");
+
+                                let parent = std::path::Path::new("storage");
+                                let filename = parent.join("dependency.md");
+
+                                std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+
+                                let dependency_graph: String = self.scene.make_mermaid_graph_of_instance_dependency();
+                                let output = "```mermaid\n".to_string() + &dependency_graph + "```\n";
+                                std::fs::write(filename, output).map_err(|e| e.to_string())?;
+                            },
+
                             Key::ESCAPE => return Ok(()),
 
                             Key::H => 
@@ -325,6 +340,13 @@ impl App
         println!("Added object with ID: {:?}", object_id);
         self.scene_dirty = true;
         object_id
+    }
+
+    pub fn add_child_object(&mut self, parent_id: ObjectId, mut child: crate::scene::Object) -> ObjectId
+    {
+        let child_object_id = self.scene.add_child_object(parent_id, child);
+        self.scene_dirty = true;
+        child_object_id
     }
 
     pub fn set_transform(&mut self, object_id: ObjectId, transform: Transform)
