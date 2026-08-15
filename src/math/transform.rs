@@ -11,6 +11,7 @@ pub struct Transform
     is_dirty: Cell<bool>,
     cached_matrix: Cell<Option<Mat4>>,
     cached_inverse_matrix: Cell<Option<Mat4>>,
+    cached_inverse_transpose_matrix: Cell<Option<Mat4>>,
 }
 
 impl Transform
@@ -25,6 +26,7 @@ impl Transform
             is_dirty: Cell::new(true),
             cached_matrix: Cell::new(None),
             cached_inverse_matrix: Cell::new(None),
+            cached_inverse_transpose_matrix: Cell::new(None)
         }
     }
 
@@ -35,13 +37,6 @@ impl Transform
             Quaternion::identity(),
             Vec3::one(),
         )
-    }
-
-    fn invalidate_cache(&self)
-    {
-        self.is_dirty.set(true);
-        self.cached_matrix.set(None);
-        self.cached_inverse_matrix.set(None);
     }
 
     pub fn position(&self) -> Point { self.position }
@@ -104,7 +99,63 @@ impl Transform
         self.invalidate_cache();
         self
     }
+
+    fn invalidate_cache(&self)
+    {
+        self.is_dirty.set(true);
+        self.cached_matrix.set(None);
+        self.cached_inverse_matrix.set(None);
+        self.cached_inverse_transpose_matrix.set(None);
+    }
+
+    pub fn update_transform_matrices(&self)
+    {
+        if self.is_dirty.get()
+        {
+            let transform_matrix: Mat4                  = self.calc_transform_matrix();
+            let inverse_transform_matrix: Mat4          = self.calc_inverse_transform_matrix();
+            let invese_transpose_transform_matrix: Mat4 = self.calc_inverse_transpose_transform_matrix();
+
+            self.cached_matrix.set(Some(transform_matrix));
+            self.cached_inverse_matrix.set(Some(inverse_transform_matrix));
+            self.cached_inverse_transpose_matrix.set(Some(invese_transpose_transform_matrix));
+
+            self.is_dirty.set(false);
+        }
+    }
+
+    fn calc_transform_matrix(&self) -> Mat4
+    {
+        let s: Mat4 = Mat4::generate_scaling_matrix(self.scale);
+        let r: Mat4 = self.rotation.into();
+        let t: Mat4 = Mat4::generate_translation_matrix(self.position);
+
+        t * r * s
+    }
+
+    fn calc_inverse_transform_matrix(&self) -> Mat4
+    {
+        let inv_t: Mat4 = Mat4::generate_inverse_translation_matrix(self.position);
+        let inv_r: Mat4 = self.rotation.conjugate().into();
+        let inv_s: Mat4 = Mat4::generate_inverse_scaling_matrix(self.scale);
+
+        inv_s * inv_r * inv_t
+    }
+
+    fn calc_inverse_transpose_transform_matrix(&self) -> Mat4
+    {
+        let inv_transpose_s: Mat4 = Mat4::generate_inverse_scaling_matrix(self.scale);
+        let inv_transpose_r: Mat4 = self.rotation.into();
+        let inv_transpose_t: Mat4 = Mat4::generate_inverse_translation_matrix(self.position).transpose();
+
+        inv_transpose_t * inv_transpose_r * inv_transpose_s
+    }
 }
+
+
+
+
+
 
 impl Default for Transform
 {
