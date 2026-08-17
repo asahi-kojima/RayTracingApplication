@@ -12,6 +12,7 @@ pub(crate) struct RuntimeInstance
 	primitive_id: RuntimePrimitiveId,
 	material_id: MaterialId,
 	transform: RuntimeTransform,
+	is_visible: bool,
 }
 
 
@@ -22,6 +23,7 @@ impl RuntimeInstance
 		primitive_id: RuntimePrimitiveId,
 		material_id: MaterialId,
 		transform: RuntimeTransform,
+		is_visible: bool,
 	) -> Self
 	{
 		Self {
@@ -29,6 +31,7 @@ impl RuntimeInstance
 			primitive_id,
 			material_id,
 			transform,
+			is_visible,
 		}
 	}
 
@@ -50,6 +53,16 @@ impl RuntimeInstance
 	pub fn transform(&self) -> &RuntimeTransform
 	{
 		&self.transform
+	}
+
+	pub fn is_visible(&self) -> bool
+	{
+		self.is_visible
+	}
+
+	pub fn set_visible(&mut self, is_visible: bool)
+	{
+		self.is_visible = is_visible;
 	}
 
 	pub fn set_transform(&mut self, transform: RuntimeTransform)
