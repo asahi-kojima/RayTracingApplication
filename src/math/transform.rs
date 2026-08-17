@@ -9,9 +9,9 @@ pub struct Transform
     scale: Vec3,
 
     is_dirty: Cell<bool>,
-    cached_matrix: Cell<Option<Mat4>>,
-    cached_inverse_matrix: Cell<Option<Mat4>>,
-    cached_inverse_transpose_matrix: Cell<Option<Mat4>>,
+    cached_matrix: Cell<Mat4>,
+    cached_inverse_matrix: Cell<Mat4>,
+    cached_inverse_transpose_matrix: Cell<Mat4>,
 }
 
 impl Transform
@@ -24,9 +24,9 @@ impl Transform
             rotation,
             scale,
             is_dirty: Cell::new(true),
-            cached_matrix: Cell::new(None),
-            cached_inverse_matrix: Cell::new(None),
-            cached_inverse_transpose_matrix: Cell::new(None)
+            cached_matrix: Cell::new(Mat4::identity()),
+            cached_inverse_matrix: Cell::new(Mat4::identity()),
+            cached_inverse_transpose_matrix: Cell::new(Mat4::identity())
         }
     }
 
@@ -42,25 +42,28 @@ impl Transform
     pub fn position(&self) -> Point { self.position }
     pub fn rotation(&self) -> Quaternion { self.rotation }
     pub fn scale(&self) -> Vec3 { self.scale }
+    pub fn transform_matrix(&self) -> Mat4 {self.cached_matrix.get()}
+    pub fn inv_transform_matrix(&self) -> Mat4 {self.cached_inverse_matrix.get()}
+    pub fn inv_transpose_transform_matrix(&self) -> Mat4 {self.cached_inverse_transpose_matrix.get()}
 
     pub fn with_position(mut self, position: Point) -> Self
     {
         self.position = position;
-        self.invalidate_cache();
+        self.is_dirty.set(true);
         self
     }
 
     pub fn with_rotation(mut self, rotation: Quaternion) -> Self
     {
         self.rotation = rotation;
-        self.invalidate_cache();
+        self.is_dirty.set(true);
         self
     }
 
     pub fn with_scale(mut self, scale: Vec3) -> Self
     {
         self.scale = scale;
-        self.invalidate_cache();
+        self.is_dirty.set(true);
         self
     }
 
@@ -68,7 +71,7 @@ impl Transform
     {
         let mut transform = self;
         transform.position += offset;
-        transform.invalidate_cache();
+        transform.is_dirty.set(true);
         transform
     }
 
@@ -76,7 +79,7 @@ impl Transform
     {
         let mut transform = self;
         transform.rotation = delta * transform.rotation;
-        transform.invalidate_cache();
+        transform.is_dirty.set(true);
         transform
     }
 
@@ -88,7 +91,7 @@ impl Transform
             transform.scale.y() * factor.y(),
             transform.scale.z() * factor.z(),
         );
-        transform.invalidate_cache();
+        transform.is_dirty.set(true);
         transform
     }
 
@@ -96,17 +99,10 @@ impl Transform
     pub fn set_position(&mut self, position: Point) -> &mut Self
     {
         self.position = position;
-        self.invalidate_cache();
+        self.is_dirty.set(true);
         self
     }
 
-    fn invalidate_cache(&self)
-    {
-        self.is_dirty.set(true);
-        self.cached_matrix.set(None);
-        self.cached_inverse_matrix.set(None);
-        self.cached_inverse_transpose_matrix.set(None);
-    }
 
     pub fn update_transform_matrices(&self)
     {
@@ -116,9 +112,9 @@ impl Transform
             let inverse_transform_matrix: Mat4          = self.calc_inverse_transform_matrix();
             let invese_transpose_transform_matrix: Mat4 = self.calc_inverse_transpose_transform_matrix();
 
-            self.cached_matrix.set(Some(transform_matrix));
-            self.cached_inverse_matrix.set(Some(inverse_transform_matrix));
-            self.cached_inverse_transpose_matrix.set(Some(invese_transpose_transform_matrix));
+            self.cached_matrix.set(transform_matrix);
+            self.cached_inverse_matrix.set(inverse_transform_matrix);
+            self.cached_inverse_transpose_matrix.set(invese_transpose_transform_matrix);
 
             self.is_dirty.set(false);
         }

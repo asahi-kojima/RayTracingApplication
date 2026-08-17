@@ -8,7 +8,7 @@ use crate::render::Frame;
 pub struct RenderContext
 {
     pub frame_index: u64,
-    pub elapsed_seconds: f32,
+    pub elapsed_seconds: f64,
 }
 
 pub(crate) trait Renderer

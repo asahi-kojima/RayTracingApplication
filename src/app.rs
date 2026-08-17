@@ -4,7 +4,7 @@ use std::time::{Duration, Instant};
 use crate::internal_prelude::*;
 use crate::camera::{Camera, CameraSnapshot};
 use crate::input::{InputEvent, Key};
-use crate::scene::{ObjectId, RuntimeScene, Scene, SceneCompiler};
+use crate::scene::{ObjectId, RuntimeScene, Scene, SceneCompiler, SceneRevision};
 use crate::platform::Presenter;
 use crate::render::{Frame, RenderContext, Renderer, CpuRenderer, GpuRenderer};
 use crate::scene::Vertex;
@@ -35,7 +35,7 @@ pub struct App
     camera: Camera,
     scene: Scene,
     runtime_scene: RuntimeScene,
-    scene_dirty: bool,
+    compiled_scene_revision: SceneRevision,
     render_target: Frame,
     fps: u32,
 }
@@ -60,6 +60,7 @@ impl App
         let render_target = Frame::new(width, height);
         let scene = Scene::new();
         let runtime_scene = SceneCompiler::compile(&scene).expect("empty scene compile should always succeed");
+        let compiled_scene_revision = scene.revision();
 
         Self {
             renderer,
@@ -67,7 +68,7 @@ impl App
             camera,
             scene,
             runtime_scene,
-            scene_dirty: false,
+            compiled_scene_revision,
             render_target,
             fps,
         }
@@ -90,6 +91,9 @@ impl App
         let mut frame_index = 0_u64;
 
         let mut input_state = InputState::default();
+
+        let mut fps_timer = Instant::now();
+        let mut fps_counter = 0_u32;
 
         loop
         {
@@ -248,17 +252,17 @@ impl App
             // ----------------------------------------------------------------
             let render_context = RenderContext {
                 frame_index,
-                elapsed_seconds: start.elapsed().as_secs_f32(),
+                elapsed_seconds: start.elapsed().as_secs_f64(),
             };
 
             // ----------------------------------------------------------------
             // シーンが変更されていたら、ランタイムシーンを再コンパイルする
             // ----------------------------------------------------------------
-            if self.scene_dirty
+            if self.compiled_scene_revision != self.scene.revision()
             {
                 self.runtime_scene = SceneCompiler::compile(&self.scene)
                     .map_err(|e| format!("Scene compile failed: {:?}", e))?;
-                self.scene_dirty = false;
+                self.compiled_scene_revision = self.scene.revision();
             }
 
             // ----------------------------------------------------------------
@@ -295,6 +299,16 @@ impl App
                     std::hint::spin_loop();
                 }
             }
+
+            fps_counter += 1;
+            let elapsed_for_fps = fps_timer.elapsed();
+            if elapsed_for_fps >= Duration::from_secs(1)
+            {
+                let fps = fps_counter as f64 / elapsed_for_fps.as_secs_f64();
+                println!("FPS: {:.1}", fps);
+                fps_counter = 0;
+                fps_timer = Instant::now();
+            }
         }
     }
 
@@ -316,21 +330,19 @@ impl App
     pub fn add_material(&mut self, name: &str, material: crate::scene::Material) -> crate::scene::MaterialId
     {
         let material_id = self.scene.add_material(name, material);
-        self.scene_dirty = true;
         material_id
     }
 
-    pub fn add_mesh(&mut self, name: &str, mesh: crate::scene::Mesh) -> crate::scene::PrimitiveId
+    pub fn add_primitive_mesh(&mut self, name: &str, mesh: crate::scene::Mesh) -> crate::scene::PrimitiveId
     {
-        let primitive_id = self.scene.add_mesh(name, mesh);
-        self.scene_dirty = true;
+        let primitive_id = self.scene.add_primitive_mesh(name, mesh);
         primitive_id
     }
 
-    pub fn add_mesh_with_topology(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<[u32; 3]>) -> Result<crate::scene::PrimitiveId, String>
+    pub fn add_primitive_mesh_with_topology(&mut self, name: &str, vertices: Vec<Vertex>, indices: Vec<[u32; 3]>) -> Result<crate::scene::PrimitiveId, MathError>
     {
-        let primitive_id = self.scene.add_mesh_with_topology(name, vertices, indices).map_err(|e| format!("Failed to add mesh with topology: {:?}", e))?;
-        self.scene_dirty = true;
+        let mesh = crate::scene::Mesh::try_new(vertices, indices)?;
+        let primitive_id = self.scene.add_primitive_mesh(name, mesh);
         Ok(primitive_id)
     }
 
@@ -338,25 +350,22 @@ impl App
     {
         let object_id = self.scene.add_object(object);
         println!("Added object with ID: {:?}", object_id);
-        self.scene_dirty = true;
         object_id
     }
 
-    pub fn add_child_object(&mut self, parent_id: ObjectId, mut child: crate::scene::Object) -> ObjectId
+    pub fn add_child_object(&mut self, parent_id: ObjectId, child: crate::scene::Object) -> Result<ObjectId, crate::prelude::SceneError>
     {
-        let child_object_id = self.scene.add_child_object(parent_id, child);
-        self.scene_dirty = true;
-        child_object_id
+        self.scene.add_child_object(parent_id, child)
     }
 
-    pub fn set_transform(&mut self, object_id: ObjectId, transform: Transform)
+    pub fn set_transform(&mut self, object_id: ObjectId, transform: Transform) -> Result<(), crate::prelude::SceneError>
     {
-        self.scene.set_transform(object_id, transform);
+        self.scene.set_transform(object_id, transform)
     }
 
-    pub fn change_visibility(&mut self, object_id: ObjectId, is_visible: bool)
+    pub fn change_visibility(&mut self, object_id: ObjectId, is_visible: bool)-> Result<(), crate::prelude::SceneError>
     {
-        self.scene.change_visibility(object_id, is_visible);
+        self.scene.change_visibility(object_id, is_visible)
     }
 
 

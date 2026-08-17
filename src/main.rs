@@ -30,7 +30,7 @@ fn main()
 
     // meshの準備
     let tetrahedron_mesh: Mesh = generate_tetrahedron();
-    let tetrahedron_id = app.add_mesh("tetrahedron", tetrahedron_mesh);
+    let tetrahedron_id = app.add_primitive_mesh("tetrahedron", tetrahedron_mesh);
 
 
     let primitive_ids = app.get_primitive_list();

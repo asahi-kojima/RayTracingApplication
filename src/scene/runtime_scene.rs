@@ -1,124 +1,16 @@
 use crate::internal_prelude::*;
 use std::collections::HashMap;
-use super::authoring::{Material, MaterialId, PrimitiveId, ObjectId, Scene, Vertex};
+use super::app_scene::{Material, MaterialId, PrimitiveId, ObjectId, Scene, Vertex};
 
 
+mod runtime_primitive;
+mod runtime_transform;
+mod runtime_instance;
 
+pub(crate) use runtime_primitive::*;
+pub(crate) use runtime_transform::*;
+pub(crate) use runtime_instance::*;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub(crate)  struct RuntimePrimitiveId(pub(crate) usize);
-
-
-
-
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub(crate) struct RuntimeInstanceId(pub(crate) usize);
-
-
-
-
-
-
-#[derive(Debug, Clone, PartialEq)]
-pub(crate) struct RuntimeMeshRef
-{
-	pub vertex_range: std::ops::Range<u32>,  // primitive_vertices バッファ内の頂点スライス
-	pub indices: Vec<[u32; 3]>,              // vertex_range.start からの相対インデックス. vertex_rangeに足して使うこと
-}
-
-
-
-
-#[derive(Debug, Clone, PartialEq)]
-pub(crate) enum RuntimePrimitive
-{
-	SphereUnit,
-	CubeUnit,
-	MeshTriangles(RuntimeMeshRef),
-}
-
-
-
-
-
-#[derive(Debug, Clone)]
-pub(crate) struct RuntimeTransform
-{
-	transform: Transform,
-}
-
-
-
-impl RuntimeTransform
-{
-	pub fn from_transform(transform: Transform) -> Self
-	{
-		Self { transform }
-	}
-
-	pub fn transform(&self) -> &Transform
-	{
-		&self.transform
-	}
-
-	pub fn set_transform(&mut self, transform: Transform)
-	{
-		self.transform = transform;
-	}
-}
-
-#[derive(Debug, Clone)]
-pub(crate) struct RuntimeInstance
-{
-	object_name: String,
-	primitive_id: RuntimePrimitiveId,
-	material_id: MaterialId,
-	transform: RuntimeTransform,
-}
-
-impl RuntimeInstance
-{
-	pub fn new(
-		object_name: String,
-		primitive_id: RuntimePrimitiveId,
-		material_id: MaterialId,
-		transform: RuntimeTransform,
-	) -> Self
-	{
-		Self {
-			object_name,
-			primitive_id,
-			material_id,
-			transform,
-		}
-	}
-
-	pub fn object_name(&self) -> &str
-	{
-		&self.object_name
-	}
-
-	pub fn primitive_id(&self) -> RuntimePrimitiveId
-	{
-		self.primitive_id
-	}
-
-	pub fn material_id(&self) -> MaterialId
-	{
-		self.material_id
-	}
-
-	pub fn transform(&self) -> &RuntimeTransform
-	{
-		&self.transform
-	}
-
-	pub fn set_transform(&mut self, transform: RuntimeTransform)
-	{
-		self.transform = transform;
-	}
-}
 
 
 // レンダリング時に機械が扱いやすいデータ構造体。CPU/GPU独自処理の前の共通データ構造
@@ -286,7 +178,7 @@ pub enum SceneCompileError
     },
 }
 
-use super::authoring::Primitive;
+use super::app_scene::Primitive;
 pub(crate) struct SceneCompiler;
 impl SceneCompiler
 {
