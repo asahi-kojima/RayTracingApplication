@@ -66,6 +66,11 @@ impl Object
         &self.children
     }
 
+    pub(crate) fn is_visible(&self) -> bool
+    {
+        self.is_visible
+    }
+
     pub fn set_transform(&mut self, transform: Transform)
     {
         self.transform = transform;
