@@ -10,6 +10,9 @@ pub use object::*;
 pub use primitive::*;
 pub use geometry_generator::*;
 
+
+
+
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct SceneRevision(u64);
 
@@ -173,9 +176,10 @@ impl Scene
         };
 
         let end = start + new_vertices.len();
+        let mesh_vertices_count = mesh.vertices().len();
 
         let destination = mesh.vertices_mut().get_mut(start..end)
-            .ok_or(PrimitiveError::VertexRangeOutOfBounds { primitive_id, start, count: mesh.vertices().len(), vertex_count: new_vertices.len() })?;
+            .ok_or(PrimitiveError::VertexRangeOutOfBounds { primitive_id, start, count: mesh_vertices_count, vertex_count: new_vertices.len() })?;
         destination.copy_from_slice(new_vertices);
 
         self.record_change(SceneChangeReason::MeshGeometryChanged { primitive_id, vertex_range: start as u32..end as u32 });
@@ -336,9 +340,8 @@ impl Scene
     // --------------------------------------------------------------------------------------------------------------
     // 変更履歴のクリア
     // --------------------------------------------------------------------------------------------------------------
-    fn clear_change(&mut self, change: SceneChangeReason)
+    pub(crate) fn clear_change(&mut self)
     {
-        self.revision = SceneRevision(self.revision.0 + 1);
-        self.changes.push(change);
+        self.changes.clear();
     }
 }
