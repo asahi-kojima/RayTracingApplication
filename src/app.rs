@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::time::{Duration, Instant};
 
-use crate::internal_prelude::*;
+use crate::{internal_prelude::*, scene};
 use crate::camera::{Camera, CameraSnapshot};
 use crate::input::{InputEvent, Key};
 use crate::scene::{ObjectId, RuntimeScene, Scene, SceneCompiler, SceneRevision};
@@ -263,6 +263,7 @@ impl App
                 self.runtime_scene = SceneCompiler::compile(&self.scene)
                     .map_err(|e| format!("Scene compile failed: {:?}", e))?;
                 self.compiled_scene_revision = self.scene.revision();
+                self.scene.clear_change();
             }
 
             // ----------------------------------------------------------------
@@ -353,19 +354,19 @@ impl App
         object_id
     }
 
-    pub fn add_child_object(&mut self, parent_id: ObjectId, child: crate::scene::Object) -> Result<ObjectId, crate::prelude::SceneError>
+    pub fn add_child_object(&mut self, parent_id: ObjectId, child: crate::scene::Object) -> Result<ObjectId, AppError>
     {
-        self.scene.add_child_object(parent_id, child)
+        Ok(self.scene.add_child_object(parent_id, child)?)
     }
 
-    pub fn set_transform(&mut self, object_id: ObjectId, transform: Transform) -> Result<(), crate::prelude::SceneError>
+    pub fn set_transform(&mut self, object_id: ObjectId, transform: Transform) -> Result<(), AppError>
     {
-        self.scene.set_transform(object_id, transform)
+        Ok(self.scene.set_transform(object_id, transform)?)
     }
 
-    pub fn change_visibility(&mut self, object_id: ObjectId, is_visible: bool)-> Result<(), crate::prelude::SceneError>
+    pub fn change_visibility(&mut self, object_id: ObjectId, is_visible: bool)-> Result<(), AppError>
     {
-        self.scene.change_visibility(object_id, is_visible)
+        Ok(self.scene.change_visibility(object_id, is_visible)?)
     }
 
 
@@ -378,4 +379,132 @@ impl App
     }
 
 
+}
+
+
+
+#[derive(Debug)]
+pub enum AppError
+{
+    ObjectNotFound
+    {
+        object_id: usize,
+    },
+    PrimitiveNotFound 
+    {
+        primitive_id: usize,
+    },
+    PrimitiveIsNotMesh 
+    {
+        primitive_id: usize,
+    },
+    VertexRangeOutOfBounds 
+    {
+        primitive_id: usize,
+        start: usize,
+        count: usize,
+        vertex_count: usize,
+    },
+    InvalidScene 
+    {
+        message: String,
+    },
+    RenderFailed 
+    {
+        message: String,
+    },
+    IoFailed 
+    {
+        message: String,
+    },
+}
+
+
+impl std::fmt::Display for AppError
+{
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        match self
+        {
+            Self::ObjectNotFound { object_id } =>
+                write!(formatter, "オブジェクト {} が見つかりません", object_id),
+
+            Self::PrimitiveNotFound { primitive_id } =>
+                write!(formatter, "プリミティブ {} が見つかりません", primitive_id),
+
+            Self::PrimitiveIsNotMesh { primitive_id } =>
+                write!(formatter, "プリミティブ {} はメッシュではありません", primitive_id),
+
+            Self::VertexRangeOutOfBounds {
+                primitive_id,
+                start,
+                count,
+                vertex_count,
+            } =>
+                write!(
+                    formatter,
+                    "メッシュ {} の頂点範囲 {}..{} は無効です。頂点数は {} です",
+                    primitive_id,
+                    start,
+                    start + count,
+                    vertex_count,
+                ),
+
+            Self::InvalidScene { message } =>
+                write!(formatter, "シーンが不正です: {}", message),
+
+            Self::RenderFailed { message } =>
+                write!(formatter, "描画に失敗しました: {}", message),
+
+            Self::IoFailed { message } =>
+                write!(formatter, "ファイル操作に失敗しました: {}", message),
+        }
+    }
+}
+
+impl std::error::Error for AppError {}
+
+
+impl From<scene::SceneError> for AppError
+{
+    fn from(error: scene::SceneError) -> Self
+    {
+        match error
+        {
+            scene::SceneError::Object(scene::ObjectError::UnknownObject { object_id }) =>
+                AppError::ObjectNotFound {
+                    object_id: object_id.0,
+                },
+
+            scene::SceneError::Primitive(scene::PrimitiveError::UnknownPrimitive { primitive_id }) =>
+                AppError::PrimitiveNotFound {
+                    primitive_id: primitive_id.0,
+                },
+
+            scene::SceneError::Primitive(scene::PrimitiveError::NotAMesh { primitive_id }) =>
+                AppError::PrimitiveIsNotMesh {
+                    primitive_id: primitive_id.0,
+                },
+
+            scene::SceneError::Primitive(
+                scene::PrimitiveError::VertexRangeOutOfBounds {
+                    primitive_id,
+                    start,
+                    count,
+                    vertex_count,
+                },
+            ) =>
+                AppError::VertexRangeOutOfBounds {
+                    primitive_id: primitive_id.0,
+                    start,
+                    count,
+                    vertex_count,
+                },
+
+            _ =>
+                AppError::InvalidScene {
+                    message: format!("{:?}", error),
+                },
+        }
+    }
 }
